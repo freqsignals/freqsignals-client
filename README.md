@@ -2,6 +2,12 @@
 
 [FreqSignals](https://freqsignals.com) client for python! It assists in token management and abstracts the HTTP requests to make it easy to upload or download signals.
 
+## Install
+
+```bash
+pip install freqsignals-client
+```
+
 ## Docs
 
 ### FreqSignalsClient
