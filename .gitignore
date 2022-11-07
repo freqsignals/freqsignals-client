@@ -1,0 +1,11 @@
+venv/
+.idea/
+build/
+dist/
+.coverage
+__pycache__/
+*.pyc
+build/*
+freqsignals_client.egg-info/
+freqsignalsclient.egg-info/
+my_env/
