@@ -1,18 +1,12 @@
 import time
 import os
+import json
 import requests
-from requests.exceptions import ConnectTimeout, RequestException
 from urllib.parse import urlencode
+from datetime import datetime, timedelta
 
-# from .exceptions import FreqSignalsError, FreqSignalsTimeoutError
-
-
-class FreqSignalsError(Exception):
-    pass
-
-
-class FreqSignalsTimeoutError(Exception):
-    pass
+from requests.exceptions import ConnectTimeout, RequestException
+from .exceptions import FreqSignalsError, FreqSignalsTimeoutError
 
 
 DEFAULT_HOST = os.environ.get("FREQSIGNALS_HOST", "api.freqsignals.com")
@@ -34,6 +28,7 @@ class FreqSignalsClient:
         request_timeout=DEFAULT_REQUEST_TIMEOUT,
         request_max_attempts=DEFAULT_REQUEST_MAX_ATTEMPTS,
         request_wait_interval=DEFAULT_REQUEST_WAIT_INTERVAL,
+        encoder_cls=None
     ):
         self._client_id = client_id
         self._client_secret = client_secret
@@ -42,7 +37,10 @@ class FreqSignalsClient:
         self._request_timeout = request_timeout
         self._request_max_attempts = request_max_attempts
         self._request_wait_interval = request_wait_interval
+        self._has_attempted_token_refresh = False
+        self._refresh_at = None
         self._token = None
+        self._encoder_cls = encoder_cls
 
     def get_token(self):
         if self._token is None:
@@ -62,7 +60,7 @@ class FreqSignalsClient:
             assert "expires_in" in res_data, res_data
             assert "scope" in res_data, res_data
             assert "token_type" in res_data, res_data
-
+            self._refresh_at = datetime.now() + timedelta(seconds=res_data["expires_in"] - 60)
             self._token = res_data["access_token"]
         return self._token
 
@@ -87,6 +85,11 @@ class FreqSignalsClient:
             list - results or raises FreqSignalsError
         """
         data_response = None
+        if self._refresh_at and datetime.now() > self._refresh_at:
+            self._token = None
+            self._refresh_at = None
+        if headers == None:
+            headers = self.get_headers()
         while data_response is None and remaining_attempts > 0:
             try:
 
@@ -99,12 +102,16 @@ class FreqSignalsClient:
                     response = requests.post(
                         self.get_full_url(url),
                         timeout=self._request_timeout,
-                        json=data,
-                        headers=headers,
+                        json=json.loads(json.dumps(data, cls=self._encoder_cls) if self._encoder_cls else json.dumps(data)),
+                        headers={
+                            'Content-Type': 'application/json',
+                            **headers
+                        },
                         verify=self._https,
                     )
                 else:
                     raise FreqSignalsError(f"bad method: {method}")
+
 
                 if response.status_code < 200 or response.status_code >= 300:
                     self.log(
@@ -154,13 +161,13 @@ class FreqSignalsClient:
         raise FreqSignalsTimeoutError()
 
     def get(self, url):
-        return self.make_request(url=url, method="get", headers=self.get_headers())
+        return self.make_request(url=url, method="get")
 
     def post(self, url, data):
-        return self.make_request(url=url, method="post", data=data, headers=self.get_headers())
+        return self.make_request(url=url, method="post", data=data)
 
     def post_signal(self, data):
-        return self.post("/api/crud/signals/", data)
+        return self.post("/api/async/signals/", data)
 
     def get_signals(self, filters=None):
         if filters is None:
@@ -179,4 +186,5 @@ class FreqSignalsClient:
         Returns:
             None
         """
+        # print(json.dumps({"level": level, "msg": msg, "log_kwargs": kwargs}, cls=NpEncoder))
         pass
