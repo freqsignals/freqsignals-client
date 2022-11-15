@@ -175,6 +175,33 @@ class FreqSignalsClient:
         query_params = urlencode({**filters})
         return self.get(f"/api/crud/signals/?{query_params}")
 
+    def get_signal_history(self, symbol, data_set_id, filters=None, multiple_pages=False):
+        if filters is None:
+            filters = {}
+        query_params = urlencode({**filters})
+        if multiple_pages:
+            filters["limit"] = 1000
+            filters["offset"] = 0
+            historical_signals = []
+            more_pages = True
+            while more_pages:
+                historical_signals_res = self.get(f"/api/crud/signal_history/?symbol={symbol}&data_set_id={data_set_id}&{query_params}")
+                if historical_signals_res["results"]:
+                    historical_signals += historical_signals_res["results"]
+                    filters["offset"] = filters["offset"] + filters["limit"]
+                    if (len(historical_signals_res["results"]) < filters["limit"]):
+                        more_pages = False
+                else:
+                    more_pages = False
+            return {
+                "count": len(historical_signals),
+                "results": historical_signals
+            }
+
+        else:
+            return self.get(f"/api/crud/signal_history/?symbol={symbol}&data_set_id={data_set_id}&{query_params}")
+
+
     def log(self, level, msg, **kwargs):
         """
         Logging function hook that should be overridden if you want logging

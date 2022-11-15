@@ -9,3 +9,6 @@ build/*
 freqsignals_client.egg-info/
 freqsignalsclient.egg-info/
 my_env/
+build.sh
+deploy.sh
+.notes
