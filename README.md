@@ -29,26 +29,15 @@ client = FreqSignalsClient(
 client.get_signals()
 # pass some filters as a dict of query parameters (see documentation)
 client.get_signals({
-    "data_set_id": "1234-56-78-9012"
-    "updated_date__gt": "2023-01-01"
+    "data_set_id": "1234-56-78-9012",
+    "updated_date__gt": "2023-01-01",
+    "limit": 1,
 })
 ```
 
 _Note_: Might raise a `freqsignals_client.FreqSignalsError` if FreqSignals rejects the request
 
 _Note_: Might raise a `freqsignals_client.FreqSignalsTimeoutError` if the request times out
-
-#### post_signal
-[see documentation](https://freqsignals.com/documentation#oauth2-api-token-integration)
-
-```python
-client.post_signal({
-    "symbol": "BTC",
-    "value": 0.1,
-    "ttl_minutes": 60,
-    "data_set_id": "DATA_SET_ID"
-})
-```
 
 which returns:
 ```
@@ -77,6 +66,18 @@ which returns:
       }
     ]
 }
+```
+
+#### post_signal
+[see documentation](https://freqsignals.com/documentation#oauth2-api-token-integration)
+
+```python
+client.post_signal({
+    "symbol": "BTC",
+    "value": 0.1,
+    "ttl_minutes": 60,
+    "data_set_id": "DATA_SET_ID"
+})
 ```
 
 #### logging
