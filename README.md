@@ -27,8 +27,11 @@ client = FreqSignalsClient(
 ```python
 # get all signals
 client.get_signals()
-# pass some filters in query params format (see documentation)
-client.get_signals("data_set_id=1234-56-78-9012&updated_date__gt=2023-01-01")
+# pass some filters as a dict of query parameters (see documentation)
+client.get_signals({
+    "data_set_id": "1234-56-78-9012"
+    "updated_date__gt": "2023-01-01"
+})
 ```
 
 _Note_: Might raise a `freqsignals_client.FreqSignalsError` if FreqSignals rejects the request
@@ -45,6 +48,35 @@ client.post_signal({
     "ttl_minutes": 60,
     "data_set_id": "DATA_SET_ID"
 })
+```
+
+which returns:
+```
+{
+    "count": 420,
+    "next": "https://api.freqsignals.com/api/crud/signals/?limit=1&offset=1",
+    "previous": null,
+    "results": [
+      {
+        "id": "1237-45-67-8910",
+        "symbol": "DOGE/USDT",
+        "value": 48.965,
+        "ttl_minutes": 5,
+        "created_date": "2022-11-13T22:52:58.216164Z",
+        "updated_date": "2023-01-26T23:25:46.360932Z",
+        "context": {
+          "rsi": 48.965,
+          "price": 0.086,
+          "open": 0.086,
+          "close": 0.086,
+          "high": 0.086,
+          "low": 0.086,
+          "last_move": 0.0
+        },
+        "data_set_id": "2345-67-89-1234"
+      }
+    ]
+}
 ```
 
 #### logging
