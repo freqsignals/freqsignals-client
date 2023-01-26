@@ -25,7 +25,10 @@ client = FreqSignalsClient(
 [see documentation](https://freqsignals.com/documentation#oauth2-api-token-integration)
 
 ```python
+# get all signals
 client.get_signals()
+# pass some filters in query params format (see documentation)
+client.get_signals("data_set_id=1234-56-78-9012&updated_date__gt=2023-01-01")
 ```
 
 _Note_: Might raise a `freqsignals_client.FreqSignalsError` if FreqSignals rejects the request
