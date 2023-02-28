@@ -1,6 +1,8 @@
 # freqsignals-client
 
-[FreqSignals](https://freqsignals.com) client for python! It assists in token management and abstracts the HTTP requests to make it easy to upload or download signals.
+[FreqSignals](https://freqsignals.com) client for python! FreqSignals is a platform enabling easier exchange of trading signals. This client library assists in token management and abstracts the HTTP requests to make it easy to upload or download signals.
+
+Learn more at [https://freqsignals.com](https://freqsignals.com).
 
 ## Install
 
